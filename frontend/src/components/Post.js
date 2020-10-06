@@ -1,19 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Collapse from '@material-ui/core/Collapse';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const useStyles = makeStyles((theme) => ({
@@ -39,42 +37,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//pass properties to ActivitiesPost function
-
-const ActivitiesPost = (props) => {
+const ActivitiesPost = ({
+  title, date, image, desc,
+}) => {
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
 
   return (
     <Card className={classes.root}>
       <CardHeader
-        avatar={
+        avatar={(
           <Avatar aria-label="recipe" className={classes.avatar}>
             R
           </Avatar>
-        }
-        action={
+        )}
+        action={(
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
-        }
-        title={ props.title }
-        subheader={ props.date }
+        )}
+        title={title}
+        subheader={date}
       />
-      { props.image && 
+      { image && (
       <CardMedia
         className={classes.media}
-        image={ props.image.url }
-        title={ props.image.title }
+        image={image.url}
+        title={image.title}
       />
-      }
+      )}
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
-	  { props.desc }
+          {desc}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -87,6 +80,22 @@ const ActivitiesPost = (props) => {
       </CardActions>
     </Card>
   );
-}
+};
+
+ActivitiesPost.propTypes = {
+  title: PropTypes.string.isRequired,
+  date: PropTypes.string.isRequired,
+  image: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+    title: PropTypes.string,
+  }),
+  desc: PropTypes.string.isRequired,
+};
+
+ActivitiesPost.defaultProps = {
+  image: {
+    title: '',
+  },
+};
 
 export default ActivitiesPost;
