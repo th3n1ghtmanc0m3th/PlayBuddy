@@ -1,19 +1,42 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Card from '@material-ui/core/Card';
-import { Avatar, CardContent, CardHeader, Container, Paper, Typography } from '@material-ui/core';
+import {
+  Avatar,
+  CardContent,
+  CardHeader,
+  Container,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Paper,
+  Typography,
+} from '@material-ui/core';
 
 const fakeActivityData = {
-  title: "Muay Thai Session",
-  location: "My Garage",
-  desc: "A fun light paced one hour intro to muay thai.",
+  title: 'Muay Thai Session',
+  location: 'My Garage',
+  desc: 'A fun light paced one hour intro to muay thai.',
   author: {
-    username: "Jay",
-    fullname: "Jay Gohner",
+    username: 'Jay',
+    fullname: 'Jay Gohner',
     userId: 420,
-    avatarURL: "https://bullmuaythaikrabi.com/wp-content/uploads/2017/09/Bull-Muay-Thai-Krabi-fighters-news_6.jpg"
+    avatarURL: 'https://bullmuaythaikrabi.com/wp-content/uploads/2017/09/Bull-Muay-Thai-Krabi-fighters-news_6.jpg'
   },
 };
+
+const fakeCommentData = [
+  {
+    comment: 'This will be an hour long introductory course.',
+    author: {
+      username: 'Jay',
+      fullname: 'Jay Gohner',
+      userId: 420,
+      avatarURL: 'https://bullmuaythaikrabi.com/wp-content/uploads/2017/09/Bull-Muay-Thai-Krabi-fighters-news_6.jpg'
+    },
+  },
+];
 
 const ActivityPage = ({ id }) => {
   // this gets and sets state for activity data, comes from post id
@@ -24,7 +47,8 @@ const ActivityPage = ({ id }) => {
     finished: false,
     error: false
   });
-  const [comments, setComments] = useState([]);
+  // this gets and sets the comment data
+  const [comments, setComments] = useState(fakeCommentData);
 
   return (
     <Container>
@@ -48,14 +72,30 @@ const ActivityPage = ({ id }) => {
         <CardContent>
           <Typography variant="h3" color="textSecondary">
             Location
-        </Typography>
+          </Typography>
           <Typography variant="body2" color="textSecondary">
             Desc
-        </Typography>
+          </Typography>
         </CardContent>
       </Card>
       <Paper>
-        {/* This will hold our comments, built using custom list components */}
+        <List>
+          {comments.map((comment) => (
+            <ListItem key={comment.author.username}>
+              <ListItemAvatar>
+                <Avatar
+                  alt={`${comment.author.username}'s profile picture`}
+                  src={comment.author.avatarURL}
+                >
+                  {comment.author.fullname}
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText>
+                {comment.comment}
+              </ListItemText>
+            </ListItem>
+          ))}
+        </List> 
       </Paper>
     </Container>
 
