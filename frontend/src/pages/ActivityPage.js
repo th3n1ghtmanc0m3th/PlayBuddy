@@ -14,6 +14,8 @@ import {
   Typography,
 } from '@material-ui/core';
 
+const api_url = process.env.API_BASE_URL;
+
 const fakeActivityData = {
   title: 'Muay Thai Session',
   location: 'My Garage',
@@ -38,73 +40,104 @@ const fakeCommentData = [
   },
 ];
 
-const ActivityPage = ({ id }) => {
-  // this gets and sets state for activity data, comes from post id
-  const [activityData, setActivityData] = useState(fakeActivityData);
-  // this gets and sets loading
-  const [loading, setLoading] = useState({
-    running: false,
-    finished: false,
-    error: false
-  });
-  // this gets and sets the comment data
-  const [comments, setComments] = useState(fakeCommentData);
+class ActivityPage extends React.Component {
+  // Constructor
+  constructor(props) {
+    super(props);
+    this.state = {
+      activityData: fakeActivityData,
+      loadingData: {
+        finished: false,
+        error: false,
+      },
+      commentData: fakeCommentData,
+      id: props.id,
+    }
+  }
 
-  return (
-    <Container>
-      <Card>
-        <CardHeader>
-          {id}
-        </CardHeader>
-        <CardHeader
-          avatar={(
-            <Avatar
-              alt={`${activityData.author.username}'s profile picture`}
-              src={activityData.author.avatarURL}
-            >
-              {activityData.author.username}
-            </Avatar>
-          )}
-          title={activityData.author.fullname}
-          subheader={activityData.author.username}
-        >
-        </CardHeader>
-        <CardContent>
-          <Typography variant="h3" color="textSecondary">
-            Location
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Desc
-          </Typography>
-        </CardContent>
-      </Card>
-      <Paper>
-        <List>
-          {comments.map((comment) => (
-            <ListItem key={comment.author.username}>
-              <ListItemAvatar>
-                <Avatar
-                  alt={`${comment.author.username}'s profile picture`}
-                  src={comment.author.avatarURL}
-                >
-                  {comment.author.fullname}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText>
-                {comment.comment}
-              </ListItemText>
-            </ListItem>
-          ))}
-        </List> 
-      </Paper>
-    </Container>
+  componentDidMount() {
+    fetch(`${api_url}/activity/${this.state.id}`)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            activityData: result.activity,
+            loadingData: {finished: true},
+          });
+        },
+        (error) => {
+          this.setState({
+            loadingData: {
+              finished: false,
+              error
+            }
+          });
+        }
+      )
+  }
 
-  );
+  render() {
+    const {
+      activityData,
+      commentData,
+      loadingData,
+    }=this.state;
+    return (
+      <Container>
+        <Card>
+          <CardHeader>
+            {activityData.title}
+          </CardHeader>
+          <CardHeader
+            avatar={(
+              <Avatar
+                alt={`${activityData.author.username}'s profile picture`}
+                src={activityData.author.avatarURL}
+              >
+                {activityData.author.username}
+              </Avatar>
+            )}
+            title={activityData.author.fullname}
+            subheader={activityData.author.username}
+          >
+          </CardHeader>
+          <CardContent>
+            <Typography variant="h3" color="textSecondary">
+              Location
+          </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Desc
+          </Typography>
+          </CardContent>
+        </Card>
+        <Paper>
+          <List>
+            {commentData.map((comment) => (
+              <ListItem key={comment.author.username}>
+                <ListItemAvatar>
+                  <Avatar
+                    alt={`${comment.author.username}'s profile picture`}
+                    src={comment.author.avatarURL}
+                  >
+                    {comment.author.fullname}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText>
+                  {comment.comment}
+                </ListItemText>
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      </Container>
+
+    );
+  }
 
 };
 
 ActivityPage.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 export default ActivityPage;
