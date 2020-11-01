@@ -5,6 +5,7 @@ import {
   Avatar,
   CardContent,
   CardHeader,
+  CircularProgress,
   Container,
   List,
   ListItem,
@@ -14,19 +15,7 @@ import {
   Typography,
 } from '@material-ui/core';
 
-const api_url = process.env.API_BASE_URL;
-
-const fakeActivityData = {
-  title: 'Muay Thai Session',
-  location: 'My Garage',
-  desc: 'A fun light paced one hour intro to muay thai.',
-  author: {
-    username: 'Jay',
-    fullname: 'Jay Gohner',
-    userId: 420,
-    avatarURL: 'https://bullmuaythaikrabi.com/wp-content/uploads/2017/09/Bull-Muay-Thai-Krabi-fighters-news_6.jpg'
-  },
-};
+const api_url = 'http://localhost:3001/api';
 
 const fakeCommentData = [
   {
@@ -45,7 +34,7 @@ class ActivityPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activityData: fakeActivityData,
+      activityData: null,
       loadingData: {
         finished: false,
         error: false,
@@ -56,8 +45,13 @@ class ActivityPage extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`${api_url}/activity/${this.state.id}`)
-      .then(res => res.json())
+    fetch(`${api_url}/activity/${this.state.id}`, {
+      //mode: 'same-origin',
+    })
+      .then(res => {
+        console.log(res);
+        return res.json()
+      })
       .then(
         (result) => {
           this.setState({
@@ -66,6 +60,7 @@ class ActivityPage extends React.Component {
           });
         },
         (error) => {
+          console.log(error);
           this.setState({
             loadingData: {
               finished: false,
@@ -81,29 +76,35 @@ class ActivityPage extends React.Component {
       activityData,
       commentData,
       loadingData,
+      id,
     }=this.state;
-    return (
+    if (loadingData.error) {
+      return <div> Error</div>;
+    }
+    else if(!loadingData.finished) {
+      return <CircularProgress/>;
+    }
+    else {
+      return (
       <Container>
         <Card>
-          <CardHeader>
-            {activityData.title}
-          </CardHeader>
           <CardHeader
             avatar={(
               <Avatar
-                alt={`${activityData.author.username}'s profile picture`}
-                src={activityData.author.avatarURL}
+                //these postedBy's need to be changed
+                alt={`${activityData.postedBy}'s profile picture`}
+                src={activityData.postedBy}
               >
-                {activityData.author.username}
+                {activityData.postedBy}
               </Avatar>
             )}
-            title={activityData.author.fullname}
-            subheader={activityData.author.username}
+            title={activityData.postedBy}
+            subheader={activityData.postedBy}
           >
           </CardHeader>
           <CardContent>
             <Typography variant="h3" color="textSecondary">
-              Location
+              {id}
           </Typography>
             <Typography variant="body2" color="textSecondary">
               Desc
@@ -113,13 +114,13 @@ class ActivityPage extends React.Component {
         <Paper>
           <List>
             {commentData.map((comment) => (
-              <ListItem key={comment.author.username}>
+              <ListItem key={comment.postedBy}>
                 <ListItemAvatar>
                   <Avatar
-                    alt={`${comment.author.username}'s profile picture`}
-                    src={comment.author.avatarURL}
+                    alt={`${comment.postedBy}'s profile picture`}
+                    src={comment.postedBy}
                   >
-                    {comment.author.fullname}
+                    {comment.postedBy}
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText>
@@ -132,6 +133,8 @@ class ActivityPage extends React.Component {
       </Container>
 
     );
+    }
+    
   }
 
 };
