@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { withStyles } from '@material-ui/styles'; 
 import PropTypes from 'prop-types';
-import Card from '@material-ui/core/Card';
 import {
   Avatar,
+  Card,
   CardContent,
   CardHeader,
   CircularProgress,
@@ -29,6 +30,13 @@ const fakeCommentData = [
   },
 ];
 
+const styles = () => ({
+  Card: {
+    marginTop: 12,
+    marginBottom: 12,
+  },
+});
+
 class ActivityPage extends React.Component {
   // Constructor
   constructor(props) {
@@ -41,6 +49,8 @@ class ActivityPage extends React.Component {
       },
       commentData: fakeCommentData,
       id: props.id,
+      authorData: null,
+      classes: this.props.classes, 
     }
   }
 
@@ -54,9 +64,11 @@ class ActivityPage extends React.Component {
       })
       .then(
         (result) => {
+          console.log(result)
           this.setState({
             activityData: result.activity,
             loadingData: {finished: true},
+            authorData: result.author,
           });
         },
         (error) => {
@@ -76,7 +88,8 @@ class ActivityPage extends React.Component {
       activityData,
       commentData,
       loadingData,
-      id,
+      authorData: author,
+      classes,
     }=this.state;
     if (loadingData.error) {
       return <div> Error</div>;
@@ -85,29 +98,33 @@ class ActivityPage extends React.Component {
       return <CircularProgress/>;
     }
     else {
+      let usersfullName = '';
+      if(author.fullname && author.fullname.firstName && author.fullname.lastName) {
+        usersfullName = `${author.fullname.firstName} ${author.fullname.lastName}`;
+      }
       return (
       <Container>
-        <Card>
+        <Card className={classes.Card}>
           <CardHeader
             avatar={(
               <Avatar
                 //these postedBy's need to be changed
-                alt={`${activityData.postedBy}'s profile picture`}
-                src={activityData.postedBy}
+                alt={`${author.username}'s profile picture`}
+                src={author.image}
               >
-                {activityData.postedBy}
+                {author.username ? author.username[0] : ''}
               </Avatar>
             )}
-            title={activityData.postedBy}
-            subheader={activityData.postedBy}
+            title={author.username}
+            subheader={usersfullName}
           >
           </CardHeader>
           <CardContent>
             <Typography variant="h3" color="textSecondary">
-              {id}
+              {activityData.title}
           </Typography>
             <Typography variant="body2" color="textSecondary">
-              Desc
+              {activityData.description}
           </Typography>
           </CardContent>
         </Card>
@@ -143,4 +160,4 @@ ActivityPage.propTypes = {
   id: PropTypes.string.isRequired,
 };
 
-export default ActivityPage;
+export default withStyles(styles)(ActivityPage);
